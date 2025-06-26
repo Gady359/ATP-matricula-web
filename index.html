@@ -10,9 +10,6 @@
       background-color: #f7f9fc;
       padding: 20px;
     }
-    h1 {
-      color: #6a1b9a;
-    }
     form {
       background: #fff;
       padding: 20px;
@@ -21,33 +18,36 @@
       margin: auto;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    label {
+    label, input, select {
       display: block;
+      width: 100%;
       margin-top: 10px;
     }
-    input, select, button {
+    button {
+      margin-top: 20px;
       width: 100%;
       padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
       background-color: #6a1b9a;
-      color: #fff;
+      color: white;
       border: none;
-      margin-top: 20px;
+      border-radius: 5px;
       cursor: pointer;
     }
     button:hover {
       background-color: #4a148c;
     }
+    #resposta {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      color: green;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Formulário de Matrícula</h1>
-  <form>
+  <h1 style="text-align:center;">Formulário de Matrícula</h1>
+  <form id="form-matricula">
     <label for="nome">Nome completo:</label>
     <input type="text" id="nome" name="nome" required />
 
@@ -62,11 +62,44 @@
       <option value="eng">Engenharia Civil</option>
     </select>
 
-    <label for="documento">Documento (simulado):</label>
-    <input type="file" id="documento" name="documento" />
+    <label for="documento">Documento (PDF ou imagem):</label>
+    <input type="file" id="documento" name="documento" required />
 
     <button type="submit">Enviar Matrícula</button>
   </form>
+
+  <div id="resposta"></div>
+
+  <script>
+    const form = document.getElementById('form-matricula');
+    const respostaDiv = document.getElementById('resposta');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch('http://localhost:3000/matricula', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          respostaDiv.textContent = data.mensagem;
+          respostaDiv.style.color = 'green';
+        } else {
+          respostaDiv.textContent = data.erro || 'Erro ao enviar matrícula.';
+          respostaDiv.style.color = 'red';
+        }
+      } catch (err) {
+        respostaDiv.textContent = 'Erro de conexão com o servidor.';
+        respostaDiv.style.color = 'red';
+      }
+    });
+  </script>
 
 </body>
 </html>
